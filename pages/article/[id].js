@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/router";
 import axios from "../../utils/axios";
 import Layout from "../../components/Layout";
@@ -12,7 +12,7 @@ import {
   Image,
 } from "react-bootstrap";
 import styles from "../../styles/Article.module.css";
-import { comment } from "postcss";
+import Cookie from "js-cookie";
 
 export async function getServerSideProps(context) {
   const { id } = context.query;
@@ -58,17 +58,35 @@ export async function getServerSideProps(context) {
 
 export default function Home(props) {
   const router = useRouter();
+  const token = Cookie.get("token");
   const { id, article, articlesRelated, comment } = props;
   const [addCommet, setAddCommet] = useState("");
-
-  const postCommmet = () => {
-    console.log(addCommet);
-  };
 
   const moveToDetail = (id) => {
     router.push(`/article/${id}`);
   };
 
+  const postCommmet = () => {
+    if (token) {
+      console.log(addCommet);
+      axios.setToken(token);
+      axios.axiosApiIntances
+        .post("add-comment", {
+          articles_id: id,
+          comments_body: addCommet,
+        })
+        .then((res) => {
+          moveToDetail(id);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else {
+      alert("Please login to make a comment !");
+    }
+  };
+
+  // console.log(token);
   return (
     <Layout title="Details">
       <Navbar />

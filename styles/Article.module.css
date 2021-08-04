@@ -1,0 +1,57 @@
+.imgBanner {
+  width: 80%;
+}
+
+.btnAdd {
+  background-color: #fe7902;
+  color: white;
+}
+
+.btnAdd:hover {
+  cursor: pointer;
+}
+
+.commentator {
+  font-size: larger;
+  font-weight: 600;
+}
+
+.comment {
+  font-size: medium;
+}
+
+.commentTime {
+  font-size: small;
+  color: gray;
+}
+
+.tumbnail {
+  width: 300px;
+  height: 220px;
+}
+
+.contentTitle {
+  font-weight: 500;
+  font-size: 18px;
+  padding-top: 5px;
+}
+
+.contentTopic {
+  color: #0072b1;
+  padding-top: 5px;
+}
+
+.contentDate {
+  color: #828282;
+  padding-top: 5px;
+}
+
+.card {
+  border: solid 2px;
+  border-radius: 5px;
+  border-color: gray;
+}
+
+.card:hover {
+  cursor: pointer;
+}

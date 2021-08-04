@@ -1,18 +1,15 @@
 module.exports = {
   env: {
-    APP_NAME: "Z-Wallet",
-    BASE_URL: "http://localhost:3004/backend4/api/v1/",
+    APP_NAME: "Designate",
+    NEXT_PUBLIC_BACKEND_URL: "http://localhost:3008/backend-creative/api/",
+    IMG_BACKEND_URL: "http://localhost:3008/backend-creative/",
   },
   async rewrites() {
     return [
       {
-        source: "/login", // source = pengganti path
-        destination: "/auth/login", // destination = awal path
+        source: "/login",
+        destination: "/auth/login",
       },
-      // {
-      //   source: "/profile-user/[id]", // source = pengganti path
-      //   destination: "/profile/[id]", // destination = awal path
-      // },
     ];
   },
 };

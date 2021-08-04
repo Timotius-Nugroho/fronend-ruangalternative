@@ -9,7 +9,6 @@ export default function Layout(props) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       {props.children}
-      {/* props.children = komponen yang terbungkus  */}
     </div>
   );
 }

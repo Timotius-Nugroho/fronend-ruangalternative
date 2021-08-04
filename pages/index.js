@@ -1,116 +1,192 @@
-// import { useState, useEffect } from "react";
-// import axiosApiIntances from "../utils/axios";
-// import Layout from "../components/Layout";
-// import Navbar from "../components/module/Navbar";
-// import styles from "../styles/Home.module.css";
-
-// export default function Home() {
-//   const [users, setUsers] = useState([]);
-
-//   useEffect(() => {
-//     console.log("Get Data !");
-//     getUsers();
-//   }, []);
-
-//   const getUsers = () => {
-//     axiosApiIntances
-//       .get("users")
-//       .then((res) => {
-//         console.log(res.data);
-//         setUsers(res.data);
-//       })
-//       .catch((err) => {
-//         console.log(err);
-//       });
-//   };
-
-//   return (
-//     <Layout title="Home">
-//       <Navbar />
-//       <h1 className={styles.titleHead}>Home Page !</h1>
-//       <h2>{process.env.APP_NAME}</h2>
-//       {users.map((item, index) => (
-//         <div className="d-grid gap-2" key={index}>
-//           <button className="btn btn-primary" type="button">
-//             {item.name}
-//           </button>
-//         </div>
-//       ))}
-//     </Layout>
-//   );
-// }
-
-// =================================================================
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import Image from "next/image";
-import axiosApiIntances from "../utils/axios";
+import axios from "../utils/axios";
 import Layout from "../components/Layout";
 import Navbar from "../components/module/Navbar";
 import styles from "../styles/Home.module.css";
-import { authPage } from "../middleware/authorizationPage";
+import ReactPaginate from "react-paginate";
+import {
+  Container,
+  Row,
+  Col,
+  InputGroup,
+  FormControl,
+  ButtonGroup,
+  DropdownButton,
+  Dropdown,
+  Image,
+} from "react-bootstrap";
 
 export async function getServerSideProps(context) {
-  const data = await authPage(context);
-  // console.log(data);
-
-  const res = await axiosApiIntances
-    // tambahkan headers jika menggunakan ssr untuk get data
-    .get("users", {
-      headers: {
-        Authorization: `Bearer ${data.token || ""}`,
-      },
-    })
+  const articles = await axios.axiosApiIntances
+    .get("get-all-article?page=1&limit=1&sort=articles_created_at DESC")
     .then((res) => {
-      // console.log(res.config); // cek menggunakan res.config di terminal. nanti akan mucul properti headers
-      return res.data;
+      // console.log(res.data.data);
+      // console.log(res.data.pagination);
+      return { data: res.data.data, pagination: res.data.pagination };
     })
     .catch((err) => {
-      // console.log(err);
-      return [];
+      return {};
     });
 
   return {
-    props: { users: res, userLogin: data },
+    props: { ...articles },
   };
 }
 
 export default function Home(props) {
   const router = useRouter();
-  // console.log(props);
-  const [users, setUsers] = useState(props.users);
+  const [data, setData] = useState(props.data);
+  const limit = 6;
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState(props.pagination);
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("Kategori");
+  const [sortBy, setSortBy] = useState("Urutkan");
 
-  const handleProfile = (id) => {
-    router.push(`/profile/${id}`);
+  useEffect(() => {
+    axios.axiosApiIntances
+      .get(
+        `get-all-article?page=${page}&limit=${limit}&keywords=${search}&sort=articles_created_at DESC${
+          category === "Kategori" ? "" : `&category=${category}`
+        }`
+      )
+      .then((res) => {
+        // console.log(res.data.data);
+        // console.log(res.data.pagination);
+        setData(res.data.data);
+        setPagination(res.data.pagination);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [search, category, sortBy, page, limit]);
+
+  const handleSelectCategory = (event) => {
+    setCategory(event);
+  };
+
+  const handleSelectSortBy = (event) => {
+    setSortBy(event);
+  };
+
+  const handlePageClick = (event) => {
+    const selectedPage = event.selected + 1;
+    setPage(selectedPage);
+  };
+
+  const moveToDetail = (id) => {
+    router.push(`/article/${id}`);
   };
 
   return (
     <Layout title="Home">
       <Navbar />
-      <br />
-      {/* <img src="/vercel.svg" alt="My Image" className="logo" /> */}
-      <div>
-        <Image
-          src="/profile/vercel.svg"
-          alt="Picture of the author"
-          width=""
-          height=""
-        />
-      </div>
-      {/* <h1 className={styles.titleHead}>Home Page !</h1> */}
-      {/* <h2>{process.env.APP_NAME}</h2> */}
-      {users.map((item, index) => (
-        <div className="d-grid gap-2 my-2" key={index}>
-          <button
-            className="btn btn-primary"
-            type="button"
-            onClick={() => handleProfile(item.id)}
-          >
-            {item.name}
-          </button>
+      <Container className="mt-5 p-3" fluid>
+        <Row>
+          <Col md={8}>
+            <InputGroup
+              className="mb-2"
+              style={{
+                height: "42px",
+                border: "solid gray",
+                borderRadius: "5px",
+              }}
+            >
+              <FormControl
+                id="inlineFormInputGroup"
+                placeholder="Masukkan kata kunci atau judul artikel"
+                onChange={(event) => {
+                  setSearch(event.target.value);
+                }}
+              />
+              <InputGroup.Text className={styles.btnSearch}>
+                Cari
+              </InputGroup.Text>
+            </InputGroup>
+          </Col>
+          <Col md={2}>
+            <DropdownButton
+              as={ButtonGroup}
+              variant="fff"
+              className={styles.customDrop}
+              title={category}
+              id="input-group-dropdown-2"
+              onSelect={handleSelectCategory}
+            >
+              <Dropdown.Item eventKey="Auto">Automotive</Dropdown.Item>
+              <Dropdown.Item eventKey="Tech">Tech</Dropdown.Item>
+            </DropdownButton>
+          </Col>
+          <Col md={2}>
+            <DropdownButton
+              as={ButtonGroup}
+              variant="fff"
+              className={styles.customDrop}
+              title={"Urutkan"}
+              id="input-group-dropdown-2"
+              onSelect={handleSelectSortBy}
+            >
+              <Dropdown.Item eventKey="articles_created_at DESC">
+                Terbaru
+              </Dropdown.Item>
+              <Dropdown.Item eventKey="articles_title ASC">
+                Judul (A-Z)
+              </Dropdown.Item>
+            </DropdownButton>
+          </Col>
+        </Row>
+        <Row className="mt-3">
+          {data.map((item, index) => {
+            return (
+              <Col key={index} md={6}>
+                <div
+                  className={`${styles.card} mt-4 p-1`}
+                  onClick={() => {
+                    moveToDetail(item.articles_id);
+                  }}
+                >
+                  <Row>
+                    <Col>
+                      <Image
+                        className={styles.tumbnail}
+                        src={`${process.env.IMG_BACKEND_URL}${item.articles_banner}`}
+                        rounded
+                      />
+                    </Col>
+                    <Col>
+                      <div className={styles.contentTitle}>
+                        {item.articles_title}
+                      </div>
+                      <div className={styles.contentTopic}>
+                        {item.articles_topic}
+                      </div>
+                      <div className={styles.contentDate}>
+                        {item.articles_created_at.split("T")[0]}
+                      </div>
+                    </Col>
+                  </Row>
+                </div>
+              </Col>
+            );
+          })}
+        </Row>
+        <div className="mt-5 d-flex justify-content-center">
+          <ReactPaginate
+            previousLabel={"prev"}
+            nextLabel={"next"}
+            breakLabel={"..."}
+            breakClassName={"break-me"}
+            pageCount={pagination.totalPage ? pagination.totalPage : 0}
+            marginPagesDisplayed={5}
+            pageRangeDisplayed={5}
+            onPageChange={handlePageClick}
+            containerClassName={styles.pagination}
+            subContainerClassName={`${styles.pages} ${styles.pagination}`}
+            activeClassName={styles.active}
+          />
         </div>
-      ))}
+      </Container>
     </Layout>
   );
 }

@@ -1,0 +1,11 @@
+.navTitle {
+  color: #fe7902;
+  font-weight: 700;
+  margin-right: 10px;
+}
+
+.navText {
+  font-size: 20px;
+  padding-right: 10px;
+  padding-left: 10px;
+}

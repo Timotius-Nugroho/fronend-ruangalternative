@@ -22,7 +22,7 @@ function Login(props) {
     props
       .login(form)
       .then((res) => {
-        console.log(res.value.data.data.token);
+        // console.log(res.value.data.data.token);
         Cookie.set("token", res.value.data.data.token, {
           expires: 1,
           secure: true,

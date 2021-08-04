@@ -68,7 +68,6 @@ export default function Home(props) {
 
   const postCommmet = () => {
     if (token) {
-      console.log(addCommet);
       axios.setToken(token);
       axios.axiosApiIntances
         .post("add-comment", {

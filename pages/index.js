@@ -42,14 +42,14 @@ export default function Home(props) {
   const [pagination, setPagination] = useState(props.pagination);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("Kategori");
-  const [sortBy, setSortBy] = useState("Urutkan");
+  const [sortBy, setSortBy] = useState(["articles_created_at DESC", "Urutkan"]);
 
   useEffect(() => {
     axios.axiosApiIntances
       .get(
-        `get-all-article?page=${page}&limit=${limit}&keywords=${search}&sort=articles_created_at DESC${
-          category === "Kategori" ? "" : `&category=${category}`
-        }`
+        `get-all-article?page=${page}&limit=${limit}&keywords=${search}&sort=${
+          sortBy[0]
+        }${category === "Kategori" ? "" : `&category=${category}`}`
       )
       .then((res) => {
         // console.log(res.data.data);
@@ -67,7 +67,7 @@ export default function Home(props) {
   };
 
   const handleSelectSortBy = (event) => {
-    setSortBy(event);
+    setSortBy(event.split("+"));
   };
 
   const handlePageClick = (event) => {
@@ -79,6 +79,7 @@ export default function Home(props) {
     router.push(`/article/${id}`);
   };
 
+  // console.log(sortBy);
   return (
     <Layout title="Home">
       <Navbar />
@@ -123,14 +124,14 @@ export default function Home(props) {
               as={ButtonGroup}
               variant="fff"
               className={styles.customDrop}
-              title={"Urutkan"}
+              title={sortBy[1]}
               id="input-group-dropdown-2"
               onSelect={handleSelectSortBy}
             >
-              <Dropdown.Item eventKey="articles_created_at DESC">
+              <Dropdown.Item eventKey="articles_created_at DESC+Terbaru">
                 Terbaru
               </Dropdown.Item>
-              <Dropdown.Item eventKey="articles_title ASC">
+              <Dropdown.Item eventKey="articles_title ASC+Judul (A-Z)">
                 Judul (A-Z)
               </Dropdown.Item>
             </DropdownButton>
